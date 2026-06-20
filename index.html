@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>隐藏人格鉴定 · 玄鉴</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#0a0a12;
+  --bg2:#111122;
+  --gold:#d4a853;
+  --gold-dim:#a8853a;
+  --gold-glow:rgba(212,168,83,0.3);
+  --cinnabar:#c23b22;
+  --teal:#2dd4bf;
+  --cream:#f5f0e8;
+  --text:#e8e0d0;
+  --card-bg:#0f0f20;
+  --card-border:rgba(212,168,83,0.4);
+}
+
+body{
+  font-family:'Noto Serif SC','SimSun','Georgia',serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  line-height:1.6;
+}
+
+/* ===== Particle Background ===== */
+#particles-canvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ===== Pages Container ===== */
+.page{
+  display:none;
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  padding:20px;
+  max-width:480px;
+  margin:0 auto;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.page.active{display:flex}
+
+/* ===== Intro Page ===== */
+#page-intro{
+  text-align:center;
+  background:radial-gradient(ellipse at 50% 30%, rgba(212,168,83,0.08) 0%, transparent 70%);
+}
+
+.logo-symbol{
+  font-size:64px;
+  margin-bottom:10px;
+  text-shadow:0 0 40px var(--gold-glow);
+}
+
+.intro-badge{
+  display:inline-block;
+  border:1px solid var(--gold);
+  color:var(--gold);
+  font-size:12px;
+  padding:4px 16px;
+  letter-spacing:6px;
+  margin-bottom:24px;
+  opacity:0.8;
+}
+
+.intro-title{
+  font-size:32px;
+  font-weight:700;
+  letter-spacing:8px;
+  margin-bottom:8px;
+  background:linear-gradient(135deg, var(--gold) 0%, #f5e6b8 50%, var(--gold) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.intro-sub{
+  font-size:13px;
+  color:rgba(245,240,232,0.5);
+  letter-spacing:6px;
+  margin-bottom:40px;
+}
+
+.intro-desc{
+  font-size:14px;
+  color:rgba(245,240,232,0.7);
+  margin-bottom:40px;
+  line-height:2.2;
+  letter-spacing:2px;
+}
+
+.intro-desc span{
+  display:block;
+}
+
+.intro-highlight{
+  color:var(--gold);
+  font-size:15px;
+  letter-spacing:3px;
+}
+
+.deco-line{
+  width:60px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin:20px auto;
+}
+
+.btn-start{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 48px;
+  border:1px solid var(--gold);
+  background:linear-gradient(135deg, rgba(212,168,83,0.15) 0%, rgba(212,168,83,0.05) 100%);
+  color:var(--gold);
+  font-size:16px;
+  font-family:inherit;
+  letter-spacing:6px;
+  cursor:pointer;
+  transition:all 0.4s;
+  position:relative;
+  overflow:hidden;
+}
+
+.btn-start::before{
+  content:'';
+  position:absolute;
+  top:-2px;left:-2px;right:-2px;bottom:-2px;
+  background:linear-gradient(45deg, var(--gold), transparent, var(--gold), transparent);
+  background-size:300% 300%;
+  opacity:0;
+  transition:opacity 0.4s;
+  z-index:-1;
+}
+
+.btn-start:hover::before{
+  opacity:1;
+  animation:borderGlow 2s linear infinite;
+}
+
+.btn-start:hover{
+  background:linear-gradient(135deg, rgba(212,168,83,0.25) 0%, rgba(212,168,83,0.1) 100%);
+  box-shadow:0 0 30px var(--gold-glow);
+  transform:translateY(-2px);
+}
+
+@keyframes borderGlow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* ===== Question Page ===== */
+#page-question{
+  padding-top:60px;
+}
+
+.progress-bar{
+  width:100%;
+  max-width:400px;
+  margin-bottom:40px;
+}
+
+.progress-text{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:rgba(245,240,232,0.5);
+  letter-spacing:2px;
+  margin-bottom:8px;
+}
+
+.progress-track{
+  width:100%;
+  height:2px;
+  background:rgba(212,168,83,0.15);
+  position:relative;
+}
+
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--gold), #f5e6b8);
+  transition:width 0.5s ease;
+  position:relative;
+}
+
+.progress-fill::after{
+  content:'';
+  position:absolute;
+  right:-3px;
+  top:-2px;
+  width:6px;
+  height:6px;
+  background:var(--gold);
+  border-radius:50%;
+  box-shadow:0 0 10px var(--gold-glow);
+}
+
+.question-number{
+  font-size:12px;
+  color:var(--gold);
+  letter-spacing:4px;
+  margin-bottom:16px;
+}
+
+.question-text{
+  font-size:20px;
+  color:var(--cream);
+  letter-spacing:3px;
+  line-height:1.8;
+  margin-bottom:36px;
+  text-align:center;
+  min-height:80px;
+}
+
+.options{
+  width:100%;
+  max-width:400px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.option-btn{
+  width:100%;
+  padding:16px 24px;
+  background:rgba(212,168,83,0.06);
+  border:1px solid rgba(212,168,83,0.2);
+  color:var(--text);
+  font-size:15px;
+  font-family:inherit;
+  letter-spacing:2px;
+  cursor:pointer;
+  transition:all 0.3s;
+  text-align:left;
+  position:relative;
+}
+
+.option-btn:hover{
+  background:rgba(212,168,83,0.12);
+  border-color:var(--gold);
+  transform:translateX(4px);
+}
+
+.option-btn:active{
+  transform:translateX(4px) scale(0.98);
+}
+
+.option-btn .opt-key{
+  display:inline-block;
+  width:24px;
+  height:24px;
+  line-height:24px;
+  text-align:center;
+  border:1px solid rgba(212,168,83,0.3);
+  color:var(--gold);
+  font-size:12px;
+  margin-right:12px;
+}
+
+/* ===== Loading Page ===== */
+#page-loading{
+  text-align:center;
+}
+
+.loading-circle{
+  width:80px;
+  height:80px;
+  margin:0 auto 30px;
+  position:relative;
+}
+
+.loading-circle::before,
+.loading-circle::after{
+  content:'';
+  position:absolute;
+  border-radius:50%;
+  border:2px solid transparent;
+}
+
+.loading-circle::before{
+  width:100%;
+  height:100%;
+  border-top-color:var(--gold);
+  animation:spin 1.5s linear infinite;
+}
+
+.loading-circle::after{
+  width:70%;
+  height:70%;
+  top:15%;
+  left:15%;
+  border-bottom-color:var(--teal);
+  animation:spin 1s linear infinite reverse;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+.loading-text{
+  font-size:16px;
+  color:var(--gold);
+  letter-spacing:6px;
+  animation:pulse 1.5s ease-in-out infinite;
+}
+
+.loading-sub{
+  font-size:12px;
+  color:rgba(245,240,232,0.4);
+  letter-spacing:3px;
+  margin-top:12px;
+}
+
+@keyframes pulse{
+  0%,100%{opacity:0.5}
+  50%{opacity:1}
+}
+
+/* ===== Result Page ===== */
+#page-result{
+  padding-top:40px;
+  padding-bottom:60px;
+}
+
+.result-section{
+  width:100%;
+  max-width:400px;
+  text-align:center;
+}
+
+.result-badge{
+  display:inline-block;
+  border:1px solid var(--gold);
+  color:var(--gold);
+  font-size:11px;
+  padding:3px 14px;
+  letter-spacing:4px;
+  margin-bottom:20px;
+  opacity:0.7;
+}
+
+.result-icon{
+  font-size:56px;
+  margin-bottom:10px;
+}
+
+.result-name{
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:6px;
+  background:linear-gradient(135deg, var(--gold) 0%, #f5e6b8 50%, var(--gold) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:4px;
+}
+
+.result-name-en{
+  font-size:12px;
+  color:rgba(245,240,232,0.35);
+  letter-spacing:8px;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+
+.result-tagline{
+  font-size:14px;
+  color:rgba(245,240,232,0.65);
+  letter-spacing:2px;
+  font-style:italic;
+  margin-bottom:24px;
+}
+
+.deco-divider{
+  width:100%;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(212,168,83,0.3), transparent);
+  margin:20px 0;
+}
+
+/* Free result: name only + paywall */
+.result-teaser{
+  padding:20px;
+  border:1px solid rgba(212,168,83,0.15);
+  margin-bottom:24px;
+  background:rgba(212,168,83,0.03);
+}
+
+.teaser-title{
+  font-size:13px;
+  color:var(--gold);
+  letter-spacing:3px;
+  margin-bottom:10px;
+}
+
+.teaser-text{
+  font-size:13px;
+  color:rgba(245,240,232,0.6);
+  letter-spacing:2px;
+  line-height:2;
+}
+
+.teaser-items{
+  text-align:left;
+  margin:12px 0;
+}
+
+.teaser-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  color:rgba(245,240,232,0.45);
+  letter-spacing:2px;
+  padding:6px 0;
+  border-bottom:1px solid rgba(212,168,83,0.06);
+}
+
+.teaser-item:last-child{border-bottom:none}
+
+.teaser-item .dot{
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--gold);
+  flex-shrink:0;
+}
+
+.lock-badge{
+  display:inline-block;
+  font-size:11px;
+  color:rgba(245,240,232,0.5);
+  letter-spacing:2px;
+  padding:6px 16px;
+  border:1px solid rgba(245,240,232,0.1);
+  margin-top:12px;
+}
+
+.paywall-box{
+  padding:24px 20px;
+  border:1px solid var(--card-border);
+  background:linear-gradient(145deg, rgba(212,168,83,0.06) 0%, transparent 100%);
+  margin-bottom:12px;
+}
+
+.paywall-title{
+  font-size:15px;
+  color:var(--cream);
+  letter-spacing:3px;
+  margin-bottom:6px;
+}
+
+.paywall-sub{
+  font-size:12px;
+  color:rgba(245,240,232,0.4);
+  letter-spacing:2px;
+  margin-bottom:16px;
+}
+
+.price-tag{
+  font-size:42px;
+  font-weight:700;
+  color:var(--gold);
+  letter-spacing:2px;
+  margin-bottom:4px;
+}
+
+.price-tag small{
+  font-size:18px;
+  font-weight:400;
+  opacity:0.6;
+}
+
+.price-note{
+  font-size:11px;
+  color:rgba(245,240,232,0.3);
+  letter-spacing:2px;
+  margin-bottom:20px;
+}
+
+.btn-unlock{
+  width:100%;
+  padding:16px;
+  border:1px solid var(--gold);
+  background:linear-gradient(135deg, rgba(212,168,83,0.2) 0%, rgba(212,168,83,0.08) 100%);
+  color:var(--gold);
+  font-size:15px;
+  font-family:inherit;
+  letter-spacing:4px;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+
+.btn-unlock:hover{
+  background:linear-gradient(135deg, rgba(212,168,83,0.3) 0%, rgba(212,168,83,0.15) 100%);
+  box-shadow:0 0 30px var(--gold-glow);
+  transform:translateY(-2px);
+}
+
+/* ===== Full Card (Paid Version) ===== */
+.full-card{
+  width:100%;
+  max-width:400px;
+  margin:0 auto;
+  display:none;
+}
+
+.full-card.show{display:block}
+
+#result-card{
+  background:linear-gradient(145deg, #0f0f20 0%, #1a1a30 100%);
+  border:1px solid var(--card-border);
+  padding:32px 24px;
+  position:relative;
+  overflow:hidden;
+}
+
+#result-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at 30% 20%, rgba(212,168,83,0.05) 0%, transparent 60%);
+  pointer-events:none;
+}
+
+#result-card::after{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.card-header{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.card-badge{
+  display:inline-block;
+  font-size:10px;
+  color:var(--gold);
+  letter-spacing:4px;
+  border:1px solid rgba(212,168,83,0.3);
+  padding:2px 12px;
+  margin-bottom:12px;
+}
+
+.card-icon{
+  font-size:52px;
+  margin-bottom:8px;
+}
+
+.card-name{
+  font-size:24px;
+  font-weight:700;
+  letter-spacing:6px;
+  background:linear-gradient(135deg, var(--gold) 0%, #f5e6b8 50%, var(--gold) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:2px;
+}
+
+.card-name-en{
+  font-size:11px;
+  color:rgba(245,240,232,0.35);
+  letter-spacing:5px;
+  text-transform:uppercase;
+}
+
+.card-tagline{
+  font-size:14px;
+  text-align:center;
+  color:rgba(245,240,232,0.65);
+  letter-spacing:2px;
+  font-style:italic;
+  padding:10px 0;
+  margin-bottom:16px;
+  border-top:1px solid rgba(212,168,83,0.15);
+  border-bottom:1px solid rgba(212,168,83,0.15);
+}
+
+.card-stats{
+  margin-bottom:16px;
+}
+
+.stat-row{
+  display:flex;
+  align-items:center;
+  margin-bottom:6px;
+}
+
+.stat-label{
+  width:50px;
+  font-size:12px;
+  color:rgba(245,240,232,0.5);
+  letter-spacing:2px;
+  flex-shrink:0;
+}
+
+.stat-bar{
+  flex:1;
+  height:6px;
+  background:rgba(255,255,255,0.06);
+  border-radius:3px;
+  overflow:hidden;
+  margin:0 10px;
+}
+
+.stat-fill{
+  height:100%;
+  border-radius:3px;
+  transition:width 1s ease;
+}
+
+.stat-val{
+  font-size:11px;
+  color:rgba(245,240,232,0.4);
+  width:30px;
+  text-align:right;
+}
+
+.card-info{
+  display:flex;
+  justify-content:center;
+  gap:24px;
+  font-size:12px;
+  color:rgba(245,240,232,0.5);
+  letter-spacing:2px;
+  margin-bottom:16px;
+  padding:10px 0;
+  border-top:1px solid rgba(212,168,83,0.1);
+  border-bottom:1px solid rgba(212,168,83,0.1);
+}
+
+.card-reading{
+  margin-bottom:16px;
+  text-align:left;
+}
+
+.reading-title{
+  font-size:12px;
+  color:var(--gold);
+  letter-spacing:3px;
+  margin-bottom:8px;
+  text-align:center;
+}
+
+.reading-text{
+  font-size:13px;
+  color:rgba(245,240,232,0.65);
+  letter-spacing:1px;
+  line-height:2;
+}
+
+.card-advice{
+  margin-bottom:16px;
+  text-align:left;
+  padding:12px 16px;
+  border-left:2px solid var(--gold);
+  background:rgba(212,168,83,0.04);
+}
+
+.advice-label{
+  font-size:11px;
+  color:var(--gold);
+  letter-spacing:3px;
+  margin-bottom:6px;
+}
+
+.advice-text{
+  font-size:13px;
+  color:rgba(245,240,232,0.6);
+  letter-spacing:1px;
+  line-height:1.8;
+}
+
+.card-careers{
+  font-size:12px;
+  color:rgba(245,240,232,0.45);
+  letter-spacing:2px;
+  text-align:center;
+  padding-top:12px;
+  border-top:1px solid rgba(212,168,83,0.1);
+}
+
+.card-footer{
+  margin-top:16px;
+  text-align:center;
+  font-size:10px;
+  color:rgba(212,168,83,0.3);
+  letter-spacing:4px;
+}
+
+/* ===== Card Actions ===== */
+.card-actions{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  margin-top:20px;
+}
+
+.btn-save{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 36px;
+  border:1px solid var(--gold);
+  background:linear-gradient(135deg, rgba(212,168,83,0.15) 0%, rgba(212,168,83,0.05) 100%);
+  color:var(--gold);
+  font-size:14px;
+  font-family:inherit;
+  letter-spacing:4px;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+
+.btn-save:hover{
+  background:linear-gradient(135deg, rgba(212,168,83,0.25) 0%, rgba(212,168,83,0.1) 100%);
+  box-shadow:0 0 20px var(--gold-glow);
+}
+
+.btn-share{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 24px;
+  border:1px solid rgba(245,240,232,0.15);
+  background:transparent;
+  color:rgba(245,240,232,0.5);
+  font-size:12px;
+  font-family:inherit;
+  letter-spacing:3px;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+
+.btn-share:hover{
+  border-color:rgba(245,240,232,0.3);
+  color:rgba(245,240,232,0.7);
+}
+
+.btn-retake{
+  display:inline-block;
+  padding:10px 24px;
+  border:1px solid rgba(245,240,232,0.1);
+  background:transparent;
+  color:rgba(245,240,232,0.35);
+  font-size:12px;
+  font-family:inherit;
+  letter-spacing:3px;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+
+.btn-retake:hover{
+  border-color:rgba(245,240,232,0.2);
+  color:rgba(245,240,232,0.5);
+}
+
+/* ===== Payment Modal ===== */
+.modal-overlay{
+  display:none;
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(8px);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.modal-overlay.show{display:flex}
+
+.modal-box{
+  background:linear-gradient(145deg, #0f0f20 0%, #1a1a30 100%);
+  border:1px solid var(--card-border);
+  padding:32px 24px;
+  max-width:360px;
+  width:100%;
+  text-align:center;
+  animation:modalIn 0.3s ease;
+}
+
+@keyframes modalIn{
+  from{opacity:0;transform:scale(0.9)}
+  to{opacity:1;transform:scale(1)}
+}
+
+.modal-title{
+  font-size:18px;
+  color:var(--gold);
+  letter-spacing:4px;
+  margin-bottom:8px;
+}
+
+.modal-price{
+  font-size:48px;
+  font-weight:700;
+  color:var(--gold);
+  letter-spacing:2px;
+  margin-bottom:4px;
+}
+
+.modal-price small{
+  font-size:20px;
+  font-weight:400;
+  opacity:0.6;
+}
+
+.modal-desc{
+  font-size:12px;
+  color:rgba(245,240,232,0.5);
+  letter-spacing:2px;
+  margin-bottom:24px;
+}
+
+.qr-placeholder{
+  width:200px;
+  height:200px;
+  margin:0 auto 20px;
+  border:1px dashed rgba(212,168,83,0.3);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:rgba(212,168,83,0.03);
+}
+
+.qr-placeholder span{
+  font-size:11px;
+  color:rgba(245,240,232,0.3);
+  letter-spacing:2px;
+  margin-top:8px;
+}
+
+.modal-qr-hint{
+  font-size:12px;
+  color:rgba(245,240,232,0.4);
+  letter-spacing:2px;
+  margin-bottom:24px;
+}
+
+.modal-actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.btn-pay-sim{
+  padding:14px 36px;
+  border:1px solid var(--gold);
+  background:linear-gradient(135deg, rgba(212,168,83,0.2) 0%, rgba(212,168,83,0.08) 100%);
+  color:var(--gold);
+  font-size:15px;
+  font-family:inherit;
+  letter-spacing:4px;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+
+.btn-pay-sim:hover{
+  background:linear-gradient(135deg, rgba(212,168,83,0.3) 0%, rgba(212,168,83,0.15) 100%);
+  box-shadow:0 0 20px var(--gold-glow);
+}
+
+.btn-modal-close{
+  padding:10px;
+  border:none;
+  background:transparent;
+  color:rgba(245,240,232,0.3);
+  font-size:12px;
+  font-family:inherit;
+  letter-spacing:2px;
+  cursor:pointer;
+}
+
+/* ===== Toast ===== */
+.toast{
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(0,0,0,0.85);
+  border:1px solid var(--gold);
+  padding:20px 32px;
+  z-index:200;
+  text-align:center;
+  backdrop-filter:blur(4px);
+}
+
+.toast.show{
+  display:block;
+  animation:toastIn 0.3s ease;
+}
+
+.toast-icon{
+  font-size:36px;
+  margin-bottom:8px;
+}
+
+.toast-text{
+  font-size:14px;
+  color:var(--cream);
+  letter-spacing:2px;
+}
+
+@keyframes toastIn{
+  from{opacity:0;transform:translate(-50%,-50%) scale(0.8)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+
+/* ===== Responsive ===== */
+@media(max-width:480px){
+  .page{padding:16px}
+  .intro-title{font-size:26px}
+  .question-text{font-size:18px}
+  .option-btn{padding:14px 18px;font-size:14px}
+  #result-card{padding:24px 16px}
+  .card-name{font-size:20px}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px}
+
+/* Fade transitions */
+.fade-in{animation:fadeIn 0.5s ease forwards}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<!-- ==================== PAGE 1: INTRO ==================== -->
+<div id="page-intro" class="page active">
+  <div class="logo-symbol">🔮</div>
+  <div class="intro-badge">玄 鉴 · 人 格 鉴 定</div>
+  <div class="intro-title">隐藏人格鉴定</div>
+  <div class="intro-sub">— W H O &nbsp; Y O U &nbsp; R E A L L Y &nbsp; A R E —</div>
+  <div class="deco-line"></div>
+  <div class="intro-desc">
+    <span>你以为的自己，可能只是冰山一角</span>
+    <span>6道题，带你发现那个</span>
+    <span class="intro-highlight">被你忽略的真实人格</span>
+  </div>
+  <div class="deco-line"></div>
+  <button class="btn-start" onclick="startTest()">
+    <span>✦</span> 开始测试 <span>✦</span>
+  </button>
+</div>
+
+<!-- ==================== PAGE 2: QUESTIONS ==================== -->
+<div id="page-question" class="page">
+  <div class="progress-bar">
+    <div class="progress-text">
+      <span id="q-progress-label">第 1 题</span>
+      <span id="q-progress-count">1 / 6</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="q-progress-fill" style="width:16.6%"></div>
+    </div>
+  </div>
+  <div class="question-number" id="q-number">— 壹 —</div>
+  <div class="question-text" id="q-text"></div>
+  <div class="options" id="q-options"></div>
+</div>
+
+<!-- ==================== PAGE 3: LOADING ==================== -->
+<div id="page-loading" class="page">
+  <div class="loading-circle"></div>
+  <div class="loading-text">命盘推演中...</div>
+  <div class="loading-sub">正在解析你的隐藏人格</div>
+</div>
+
+<!-- ==================== PAGE 4: RESULT ==================== -->
+<div id="page-result" class="page">
+  <div class="result-section">
+
+    <!-- FREE version: name only + teaser + paywall -->
+    <div id="result-free">
+      <div class="result-badge">测 试 结 果</div>
+      <div class="result-icon" id="r-icon"></div>
+      <div class="result-name" id="r-name"></div>
+      <div class="result-name-en" id="r-name-en"></div>
+      <div class="result-tagline" id="r-tagline"></div>
+
+      <div class="deco-divider"></div>
+
+      <div class="result-teaser">
+        <div class="teaser-title">✦ 你的完整人格档案包含 ✦</div>
+        <div class="teaser-items">
+          <div class="teaser-item"><span class="dot"></span>五大核心属性深度解析</div>
+          <div class="teaser-item"><span class="dot"></span>你的隐藏人格完整解读</div>
+          <div class="teaser-item"><span class="dot"></span>专属人生指南与建议</div>
+          <div class="teaser-item"><span class="dot"></span>适配领域与天赋方向</div>
+        </div>
+        <div class="lock-badge">🔒 以上内容已加密</div>
+      </div>
+
+      <div class="paywall-box">
+        <div class="paywall-title">解锁你的完整人格档案</div>
+        <div class="paywall-sub">一张可保存的精美卡片 · 值得分享给朋友</div>
+        <div class="deco-divider"></div>
+        <div class="price-tag"><small>¥</small>0.99</div>
+        <div class="price-note">仅需一次支付，永久查看</div>
+        <button class="btn-unlock" onclick="showPayment()">✦ 立即解锁 ✦</button>
+      </div>
+    </div>
+
+    <!-- FULL card (paid) -->
+    <div class="full-card" id="full-card-wrap">
+      <div id="result-card">
+        <div class="card-header">
+          <div class="card-badge">玄 鉴 · 隐 藏 人 格</div>
+          <div class="card-icon" id="c-icon"></div>
+          <div class="card-name" id="c-name"></div>
+          <div class="card-name-en" id="c-name-en"></div>
+        </div>
+        <div class="card-tagline" id="c-tagline"></div>
+
+        <div class="card-stats" id="c-stats"></div>
+
+        <div class="card-info" id="c-info"></div>
+
+        <div class="card-reading" id="c-reading"></div>
+
+        <div class="card-advice" id="c-advice"></div>
+
+        <div class="card-careers" id="c-careers"></div>
+
+        <div class="card-footer">✦ 玄 鉴 · 人 格 鉴 定 ✦</div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-save" onclick="saveCard()">
+          <span>⬇</span> 保存卡片
+        </button>
+        <button class="btn-share" onclick="copyLink()">
+          <span>✧</span> 分享给朋友
+        </button>
+        <button class="btn-retake" onclick="retake()">⟳ 重新测试</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== PAYMENT MODAL ==================== -->
+<div class="modal-overlay" id="payment-modal">
+  <div class="modal-box">
+    <div class="modal-title">✦ 解锁完整档案 ✦</div>
+    <div class="modal-price"><small>¥</small>0.99</div>
+    <div class="modal-desc">一杯奶茶都不到的价格<br>解锁你的完整隐藏人格鉴定卡片</div>
+    <div class="qr-placeholder">
+      <div style="font-size:48px;opacity:0.4">🧾</div>
+      <span>演示模式 · 模拟支付</span>
+    </div>
+    <div class="modal-qr-hint">扫码支付 ¥0.99 或点击下方模拟支付</div>
+    <div class="modal-actions">
+      <button class="btn-pay-sim" onclick="simulatePay()">✓ 模拟支付成功 (演示)</button>
+      <button class="btn-modal-close" onclick="closeModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TOAST ==================== -->
+<div class="toast" id="toast">
+  <div class="toast-icon">✅</div>
+  <div class="toast-text">卡片已保存</div>
+</div>
+
+<div class="toast" id="toast-copy" style="display:none">
+  <div class="toast-icon">🔗</div>
+  <div class="toast-text">链接已复制，快去分享吧！</div>
+</div>
+
+<script>
+// ===== Anti-Theft: domain check =====
+(function(){
+  var allowed = ['localhost','127.0.0.1','yourdomain.com','personality.vercel.app','personality.netlify.app'];
+  var host = window.location.hostname;
+  var isAllowed = false;
+  for(var i=0;i<allowed.length;i++){
+    if(host.indexOf(allowed[i])!==-1 || host.endsWith('.vercel.app') || host.endsWith('.netlify.app')){
+      isAllowed=true;break;
+    }
+  }
+  if(!isAllowed && host!==''){
+    console.log('%c⚠ 未经授权使用','font-size:24px;color:#c23b22;font-weight:bold');
+  }
+})();
+
+// ===== Anti-theft: obfuscated watermark =====
+var _site_ = '玄鉴人格鉴定';
+
+// ===== Personality Data =====
+var PERSONALITIES = {
+  oracle:{
+    name:'幕后军师',
+    nameEn:'THE MASTERMIND',
+    icon:'☯',
+    tagline:'"你天生就是看透一切的人"',
+    color:'#1a6b8a',
+    element:'玄水',
+    star:'水星',
+    stats:{洞察:88,智慧:85,理性:80,远见:72,力量:40},
+    reading:'你不是不合群，你只是懒得加入无意义的讨论。别人在争论对错时，你已经在看第四层。你的大脑像一台精密的情报分析仪，表面不动声色，内心早已把每个人的动机、底牌、下一步棋都推演了一遍。身边人总会惊讶于你的预判——你早就看到了结局。',
+    advice:'适当分享你的洞察，而不是默默地看透一切。你的智慧需要被看见，别人才有机会被你所启发。',
+    careers:'策略师 · 分析师 · 顾问 · 规划师'
+  },
+  kirin:{
+    name:'暖心守护者',
+    nameEn:'THE PROTECTOR',
+    icon:'🛡',
+    tagline:'"你是身边人最安心的依靠"',
+    color:'#c9a44a',
+    element:'玄金',
+    star:'金星',
+    stats:{仁爱:90,守护:85,可靠:82,共情:75,力量:65},
+    reading:'你有一种让人安心的超能力——只要你在，大家就觉得"没事"。你总是第一个注意到谁不开心，第一个站出来解决问题，最后一个才考虑自己。你不是老好人，你是真正的守护者。你的善良有锋芒，你的温柔有力量。',
+    advice:'别忘了守护自己。你值得被同样温柔地对待，偶尔也允许自己脆弱一次。',
+    careers:'领导者 · 医生 · 教师 · 公益人'
+  },
+  phantom:{
+    name:'自由灵魂',
+    nameEn:'THE FREE SPIRIT',
+    icon:'🦋',
+    tagline:'"你不属于任何框架"',
+    color:'#6b21a8',
+    element:'玄风',
+    star:'天王星',
+    stats:{灵气:92,创造力:88,独立:85,审美:78,社交:50},
+    reading:'规则是用来打破的，而你就是那个打破规则的人。你不喜欢被定义——"我是谁"这个问题，你的答案每周都在变。你的大脑永远在冒出别人想不到的点子，你的存在本身就在提醒世界：活着可以很自由。',
+    advice:'世界需要你的不一样。保持你的独特，但也别忘了和这个世界保持连接——你的与众不同，正是你最动人的地方。',
+    careers:'艺术家 · 设计师 · 创作者 · 自由职业'
+  },
+  phoenix:{
+    name:'热血主角',
+    nameEn:'THE PROTAGONIST',
+    icon:'🔥',
+    tagline:'"你生来就该发光"',
+    color:'#9b1d20',
+    element:'玄火',
+    star:'火星',
+    stats:{热情:95,感染力:88,勇气:82,直觉:75,耐心:45},
+    reading:'你天生就是人群中的焦点，这不是因为你爱出风头，而是因为你身上的能量太耀眼了。你有一种让人忍不住追随的磁场——你的热情会点燃身边的人，你的笑容能照亮整个房间。你相信努力会有回报，并且你真的在拼命发光。',
+    advice:'允许自己偶尔暗淡。你不需要一直做太阳，月亮也有它的美。休息是为了更盛大的绽放。',
+    careers:'创业者 · 演说家 · 演员 · 探险家'
+  },
+  stellar:{
+    name:'梦想家',
+    nameEn:'THE DREAMER',
+    icon:'✦',
+    tagline:'"你的眼里有星辰大海"',
+    color:'#38bdf8',
+    element:'玄光',
+    star:'木星',
+    stats:{格局:90,理想主义:85,包容:82,智慧:72,执行:55},
+    reading:'你的心很大，大到装得下整个世界。别人在焦虑眼前的得失时，你在想如何让这个世界变得更好。你相信美好，并且愿意为此付出努力。你的包容让各种各样的人都愿意靠近你——因为在你身边，他们可以做最真实的自己。',
+    advice:'理想需要落地。把你眼里的星辰大海，转化成一个个小目标。梦想家的浪漫，加上实干家的行动力，你会无所不能。',
+    careers:'哲学家 · 导演 · 外交家 · 公益人'
+  },
+  forge:{
+    name:'实干家',
+    nameEn:'THE BUILDER',
+    icon:'⛰',
+    tagline:'"你走的每一步都算数"',
+    color:'#8b7355',
+    element:'玄土',
+    star:'土星',
+    stats:{坚韧:95,执行力:90,可靠:88,务实:80,灵活:45},
+    reading:'你不是最快的，但你是最稳的。当别人在找捷径时，你已经在路上。你知道真正的价值需要时间沉淀，所以你不急不躁，一步一个脚印。你是团队里的定海神针，是家人最坚实的后盾。时间是你最好的朋友，因为你做的每一件事，都经得起考验。',
+    advice:'偶尔抬头看看路。你的坚持值得敬佩，但方向比努力更重要。别忘了，目的地本身也是一种风景。',
+    careers:'工程师 · 建筑师 · 军人 · 工匠'
+  }
+};
+
+var TYPE_LIST = ['oracle','kirin','phantom','phoenix','stellar','forge'];
+
+// ===== Questions =====
+var QUESTIONS = [
+  {
+    text:'在热闹的聚会上，你通常会？',
+    options:[
+      {text:'默默观察每个人的言行',type:'phantom'},
+      {text:'成为全场气氛的焦点',type:'phoenix'},
+      {text:'在角落照顾好需要帮助的人',type:'kirin'}
+    ]
+  },
+  {
+    text:'你更欣赏以下哪种品质？',
+    options:[
+      {text:'深邃的智慧与洞察力',type:'oracle'},
+      {text:'不屈的毅力与执行力',type:'forge'},
+      {text:'广阔的视野与大格局',type:'stellar'}
+    ]
+  },
+  {
+    text:'朋友们通常如何形容你？',
+    options:[
+      {text:'神秘又有魅力',type:'phantom'},
+      {text:'像太阳一样温暖有能量',type:'phoenix'},
+      {text:'可靠得像一座山',type:'forge'}
+    ]
+  },
+  {
+    text:'面对未知的挑战，你首先会？',
+    options:[
+      {text:'收集信息，分析局势再做判断',type:'oracle'},
+      {text:'相信直觉，立刻行动',type:'stellar'},
+      {text:'做好万全准备，稳步推进',type:'kirin'}
+    ]
+  },
+  {
+    text:'你认为自己的核心优势是？',
+    options:[
+      {text:'创造力与想象力',type:'phoenix'},
+      {text:'执行力与耐心',type:'forge'},
+      {text:'共情力与包容心',type:'kirin'}
+    ]
+  },
+  {
+    text:'如果穿越到古代，你最想成为？',
+    options:[
+      {text:'运筹帷幄的幕后军师',type:'oracle'},
+      {text:'行踪不定的自由侠客',type:'phantom'},
+      {text:'仰望星空的诗人哲人',type:'stellar'}
+    ]
+  }
+];
+
+var CN_NUM = ['壹','贰','叁','肆','伍','陆'];
+
+// ===== State =====
+var currentQ = 0;
+var answers = {};
+var resultType = null;
+var isPaid = false;
+
+// ===== Particle Background =====
+function initParticles(){
+  var canvas = document.getElementById('particles-canvas');
+  var ctx = canvas.getContext('2d');
+  var w,h,particles=[];
+
+  function resize(){
+    w=canvas.width=window.innerWidth;
+    h=canvas.height=window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize',resize);
+
+  var count=Math.floor((w*h)/15000);
+  for(var i=0;i<count;i++){
+    particles.push({
+      x:Math.random()*w,
+      y:Math.random()*h,
+      r:Math.random()*2+0.5,
+      dx:(Math.random()-0.5)*0.3,
+      dy:(Math.random()-0.5)*0.3,
+      o:Math.random()*0.5+0.1
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    particles.forEach(function(p){
+      p.x+=p.dx;
+      p.y+=p.dy;
+      if(p.x<0)p.x=w;
+      if(p.x>w)p.x=0;
+      if(p.y<0)p.y=h;
+      if(p.y>h)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(212,168,83,'+p.o+')';
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ===== Page Navigation =====
+function showPage(id){
+  var pages = document.querySelectorAll('.page');
+  for(var i=0;i<pages.length;i++){pages[i].classList.remove('active');}
+  var el=document.getElementById(id);
+  el.classList.add('active');
+}
+
+// ===== Start Test =====
+function startTest(){
+  currentQ=0;
+  answers={};
+  isPaid=false;
+  resultType=null;
+  document.getElementById('full-card-wrap').classList.remove('show');
+  document.getElementById('result-free').style.display='block';
+  showPage('page-question');
+  renderQuestion();
+}
+
+// ===== Render Question =====
+function renderQuestion(){
+  var q=QUESTIONS[currentQ];
+  document.getElementById('q-number').textContent='— '+CN_NUM[currentQ]+' —';
+  document.getElementById('q-text').textContent=q.text;
+  document.getElementById('q-progress-label').textContent='第 '+(currentQ+1)+' 题';
+  document.getElementById('q-progress-count').textContent=(currentQ+1)+' / 6';
+  document.getElementById('q-progress-fill').style.width=((currentQ+1)/6*100)+'%';
+
+  var container=document.getElementById('q-options');
+  container.innerHTML='';
+  var keys=['A','B','C'];
+  for(var i=0;i<q.options.length;i++){
+    var opt=q.options[i];
+    var btn=document.createElement('button');
+    btn.className='option-btn fade-in';
+    btn.style.animationDelay=(i*0.1)+'s';
+    btn.innerHTML='<span class="opt-key">'+keys[i]+'</span>'+opt.text;
+    (function(idx){btn.onclick=function(){selectOption(idx);};})(i);
+    container.appendChild(btn);
+  }
+}
+
+// ===== Select Option =====
+function selectOption(idx){
+  var q=QUESTIONS[currentQ];
+  var type=q.options[idx].type;
+  if(!answers[type]){answers[type]=0;}
+  answers[type]++;
+
+  if(currentQ<QUESTIONS.length-1){
+    currentQ++;
+    renderQuestion();
+  }else{
+    showPage('page-loading');
+    setTimeout(calculateResult,1500);
+  }
+}
+
+// ===== Calculate Result =====
+function calculateResult(){
+  var maxCount=0;
+  for(var i=0;i<TYPE_LIST.length;i++){
+    var t=TYPE_LIST[i];
+    var c=answers[t]||0;
+    if(c>maxCount){maxCount=c;resultType=t;}
+  }
+  showPage('page-result');
+  renderFreeResult();
+}
+
+// ===== Render Free Result =====
+function renderFreeResult(){
+  var p=PERSONALITIES[resultType];
+  document.getElementById('r-icon').textContent=p.icon;
+  document.getElementById('r-name').textContent='【 '+p.name+' 】';
+  document.getElementById('r-name-en').textContent=p.nameEn;
+  document.getElementById('r-tagline').textContent=p.tagline;
+}
+
+// ===== Show Payment Modal =====
+function showPayment(){
+  document.getElementById('payment-modal').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('payment-modal').classList.remove('show');
+}
+
+// ===== Simulate Payment =====
+function simulatePay(){
+  closeModal();
+  isPaid=true;
+  document.getElementById('result-free').style.display='none';
+  var wrap=document.getElementById('full-card-wrap');
+  wrap.classList.add('show');
+  renderFullCard();
+  setTimeout(function(){wrap.scrollIntoView({behavior:'smooth'});},100);
+}
+
+// ===== Render Full Card =====
+function renderFullCard(){
+  var p=PERSONALITIES[resultType];
+
+  document.getElementById('c-icon').textContent=p.icon;
+  document.getElementById('c-name').textContent='【 '+p.name+' 】';
+  document.getElementById('c-name-en').textContent=p.nameEn;
+  document.getElementById('c-tagline').textContent=p.tagline;
+
+  var grad='linear-gradient(90deg, '+p.color+'88, '+p.color+')';
+  var statsContainer=document.getElementById('c-stats');
+  statsContainer.innerHTML='';
+  var keys=Object.keys(p.stats);
+  for(var i=0;i<keys.length;i++){
+    var label=keys[i];
+    var val=p.stats[label];
+    var row=document.createElement('div');
+    row.className='stat-row';
+    row.innerHTML=
+      '<span class="stat-label">'+label+'</span>'+
+      '<div class="stat-bar">'+
+        '<div class="stat-fill" style="width:0%;background:'+grad+'"></div>'+
+      '</div>'+
+      '<span class="stat-val">'+val+'%</span>';
+    statsContainer.appendChild(row);
+    (function(row2,v){
+      setTimeout(function(){
+        row2.querySelector('.stat-fill').style.width=v+'%';
+      },200+i*150);
+    })(row,val);
+  }
+
+  document.getElementById('c-info').innerHTML=
+    '<span>✦ 五行 · '+p.element+'</span>'+
+    '<span>✦ 守护 · '+p.star+'</span>';
+
+  document.getElementById('c-reading').innerHTML=
+    '<div class="reading-title">— 你的隐藏人格解读 —</div>'+
+    '<div class="reading-text">'+p.reading+'</div>';
+
+  document.getElementById('c-advice').innerHTML=
+    '<div class="advice-label">✦ 给 '+p.name+' 的人生建议</div>'+
+    '<div class="advice-text">'+p.advice+'</div>';
+
+  document.getElementById('c-careers').innerHTML=
+    '<span style="opacity:0.5">适配领域 &nbsp;│&nbsp;</span>'+p.careers;
+}
+
+// ===== Save Card as Image =====
+function saveCard(){
+  var card=document.getElementById('result-card');
+  html2canvas(card,{
+    backgroundColor:'#0f0f20',
+    scale:2,
+    useCORS:true,
+    logging:false,
+    width:card.scrollWidth,
+    height:card.scrollHeight,
+    windowWidth:card.scrollWidth,
+    windowHeight:card.scrollHeight
+  }).then(function(canvas){
+    var link=document.createElement('a');
+    link.download=resultType+'_hidden_personality.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    var toast=document.getElementById('toast');
+    toast.style.display='block';
+    toast.classList.add('show');
+    setTimeout(function(){toast.classList.remove('show');toast.style.display='none';},2000);
+  });
+}
+
+// ===== Share =====
+function copyLink(){
+  var input=document.createElement('textarea');
+  input.value=window.location.href;
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  document.body.removeChild(input);
+  var toast=document.getElementById('toast-copy');
+  toast.style.display='block';
+  toast.classList.add('show');
+  setTimeout(function(){toast.classList.remove('show');toast.style.display='none';},2000);
+}
+
+// ===== Retake =====
+function retake(){
+  startTest();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ===== Init =====
+initParticles();
+</script>
+</body>
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>动物塑性格测试 · 30题深度版</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#f5f0eb;
+  --card:#ffffff;
+  --text:#1a1a2e;
+  --text2:#6b6580;
+  --accent1:#ff7e5f;
+  --accent2:#feb47b;
+  --blue:#5b9bd5;
+  --purple:#a88dc8;
+  --green:#7cb083;
+  --shadow-sm:0 2px 12px rgba(0,0,0,0.06);
+  --shadow-md:0 6px 28px rgba(0,0,0,0.08);
+  --shadow-lg:0 12px 48px rgba(0,0,0,0.12);
+  --radius-sm:12px;
+  --radius-md:16px;
+  --radius-lg:24px;
+}
+
+body{
+  font-family:-apple-system,'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ===== Ambient BG ===== */
+.ambient{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:-1;pointer-events:none;overflow:hidden;
+}
+.ambient div{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:0.18;
+}
+.ambient div:nth-child(1){width:500px;height:500px;background:var(--accent1);top:-120px;right:-80px;animation:drift 14s ease-in-out infinite;}
+.ambient div:nth-child(2){width:400px;height:400px;background:var(--purple);bottom:-100px;left:-100px;animation:drift 18s ease-in-out infinite reverse;}
+.ambient div:nth-child(3){width:300px;height:300px;background:var(--blue);top:40%;left:30%;animation:drift 20s ease-in-out infinite;}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-40px) scale(1.1)}}
+
+/* ===== Pages ===== */
+.page{display:none;position:relative;z-index:1;min-height:100vh;max-width:520px;margin:0 auto;padding:20px;flex-direction:column;align-items:center}
+.page.active{display:flex}
+.ta-c{text-align:center}
+
+/* ===== INTRO ===== */
+#intro{justify-content:center}
+.hero-icon{
+  width:130px;height:130px;
+  background:linear-gradient(135deg,var(--accent2),var(--accent1));
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:64px;margin-bottom:24px;
+  box-shadow:0 10px 40px rgba(255,126,95,0.25);
+  animation:heroBounce 2.4s ease-in-out infinite;
+}
+@keyframes heroBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+.badge{
+  display:inline-block;background:var(--green);color:#fff;
+  font-size:12px;padding:5px 18px;border-radius:20px;letter-spacing:3px;margin-bottom:14px;font-weight:600;
+}
+.hero-title{
+  font-size:34px;font-weight:800;letter-spacing:4px;margin-bottom:4px;
+  background:linear-gradient(135deg,var(--accent1),var(--accent2),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{font-size:13px;color:var(--text2);letter-spacing:6px;margin-bottom:28px}
+.hero-stats{display:flex;gap:28px;margin-bottom:28px}
+.hero-stats > div{text-align:center}
+.hero-stats .n{font-size:26px;font-weight:700;color:var(--accent1);line-height:1.2}
+.hero-stats .l{font-size:11px;color:var(--text2);letter-spacing:1px}
+.hero-desc{font-size:14px;color:var(--text2);line-height:2;margin-bottom:28px;padding:0 10px}
+.hero-animals{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:32px}
+.hero-animals span{
+  width:40px;height:40px;background:var(--card);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;box-shadow:var(--shadow-sm);transition:transform .2s;
+}
+.hero-animals span:hover{transform:scale(1.25);z-index:2}
+
+.btn-primary{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 56px;
+  background:linear-gradient(135deg,var(--accent2),var(--accent1));
+  color:#fff;font-size:17px;font-weight:600;font-family:inherit;
+  border:none;border-radius:50px;cursor:pointer;
+  letter-spacing:4px;transition:all .3s;
+  box-shadow:0 6px 24px rgba(255,126,95,0.3);
+}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(255,126,95,0.4)}
+.btn-primary:active{transform:scale(.97)}
+
+/* ===== QUESTION ===== */
+#question{padding-top:48px}
+.q-progress{width:100%;margin-bottom:32px}
+.qp-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:10px}
+.qp-row strong{color:var(--accent1)}
+.qp-track{width:100%;height:8px;background:rgba(0,0,0,.06);border-radius:4px;overflow:hidden}
+.qp-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent1));border-radius:4px;transition:width .5s ease}
+.qp-milestones{display:flex;justify-content:space-between;margin-top:6px}
+.qp-milestones span{font-size:10px;color:rgba(0,0,0,.2);letter-spacing:1px;transition:color .4s}
+.qp-milestones span.done{color:var(--accent1)}
+
+.q-card{
+  width:100%;background:var(--card);border-radius:var(--radius-lg);
+  padding:32px 24px;box-shadow:var(--shadow-md);
+  transform:translateY(0);transition:transform .3s;
+}
+.q-num{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:600;color:var(--accent1);
+  background:rgba(255,126,95,.1);padding:4px 14px;border-radius:20px;margin-bottom:18px;
+}
+.q-num .circle{width:20px;height:20px;border-radius:50%;background:var(--accent1);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.q-text{font-size:19px;font-weight:600;line-height:1.7;margin-bottom:28px;min-height:54px}
+.q-opts{display:flex;flex-direction:column;gap:10px}
+.q-opt{
+  width:100%;padding:15px 18px;
+  background:var(--bg);border:2px solid transparent;border-radius:var(--radius-sm);
+  color:var(--text);font-size:15px;font-family:inherit;cursor:pointer;
+  transition:all .25s;text-align:left;display:flex;align-items:center;gap:14px;
+  position:relative;overflow:hidden;
+}
+.q-opt::after{
+  content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(135deg,var(--accent2),var(--accent1));opacity:0;transition:opacity .25s;
+}
+.q-opt:hover{border-color:var(--accent2);background:rgba(255,126,95,.05);transform:translateX(6px)}
+.q-opt:active{transform:scale(.98)}
+.q-opt .ok{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .3s;position:relative;z-index:1;background:#fff}
+.q-opt .ot{position:relative;z-index:1}
+
+/* Click ripple effect */
+.ripple{
+  position:absolute;border-radius:50%;background:rgba(255,126,95,.25);
+  transform:scale(0);animation:rippleAnim .5s ease-out;pointer-events:none;
+}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+
+/* ===== LOADING ===== */
+#loading{justify-content:center;text-align:center}
+.loading-emoji{font-size:80px;display:block;margin-bottom:16px;animation:sway 1.6s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.loading-t1{font-size:20px;font-weight:700;color:var(--accent1);letter-spacing:3px;animation:pulse2 1.4s ease-in-out infinite}
+.loading-t2{font-size:13px;color:var(--text2);margin-top:6px}
+.loading-bar{width:200px;height:4px;background:rgba(0,0,0,.06);border-radius:2px;margin:20px auto 0;overflow:hidden}
+.loading-bar div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent1));border-radius:2px;animation:loadBar 1.8s ease forwards}
+@keyframes loadBar{to{width:100%}}
+@keyframes pulse2{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ===== RESULT ===== */
+#result{padding-top:28px;padding-bottom:60px}
+.res{width:100%;text-align:center}
+
+.res-hero{margin-bottom:20px}
+.res-badge{display:inline-block;background:rgba(255,126,95,.1);color:var(--accent1);font-size:12px;padding:4px 18px;border-radius:20px;font-weight:600;letter-spacing:2px;margin-bottom:12px}
+.res-icon{font-size:80px;margin-bottom:6px;display:block;animation:resBounce 2.4s ease-in-out infinite}
+@keyframes resBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.res-name{font-size:30px;font-weight:800;letter-spacing:4px;margin-bottom:2px}
+.res-en{font-size:12px;color:var(--text2);letter-spacing:8px;text-transform:uppercase;margin-bottom:10px}
+.res-tag{font-size:15px;color:var(--text2);font-style:italic;margin-bottom:20px}
+
+/* Rounded result card */
+.card-wrap{width:100%;max-width:480px;margin:0 auto}
+#res-card{
+  background:var(--card);border-radius:var(--radius-lg);
+  padding:28px 20px;box-shadow:var(--shadow-lg);
+  position:relative;overflow:hidden;
+}
+#res-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:5px;
+  background:linear-gradient(90deg,var(--accent2),var(--accent1),var(--purple),var(--blue));
+}
+#res-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at 80% 10%,rgba(255,126,95,.04) 0%,transparent 60%);
+  pointer-events:none;
+}
+
+.rc-icon{font-size:56px;margin-bottom:6px;text-align:center}
+.rc-name{font-size:22px;font-weight:800;letter-spacing:3px;text-align:center;margin-bottom:2px}
+.rc-en{font-size:11px;color:var(--text2);letter-spacing:5px;text-transform:uppercase;text-align:center;margin-bottom:4px}
+.rc-tag{font-size:13px;text-align:center;color:var(--text2);font-style:italic;padding:8px 0;border-top:1px solid rgba(0,0,0,.05);border-bottom:1px solid rgba(0,0,0,.05);margin-bottom:14px}
+
+.rc-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px}
+.rc-tags span{
+  font-size:11px;padding:4px 14px;border-radius:20px;
+  background:rgba(0,0,0,.04);color:var(--text2);font-weight:500;letter-spacing:1px;
+}
+
+.rc-stats{margin-bottom:14px}
+.rs-row{display:flex;align-items:center;margin-bottom:7px}
+.rs-l{width:48px;font-size:12px;color:var(--text2);font-weight:500;flex-shrink:0;text-align:left}
+.rs-b{flex:1;height:7px;background:rgba(0,0,0,.05);border-radius:4px;overflow:hidden;margin:0 8px}
+.rs-f{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.rs-v{width:28px;font-size:11px;color:var(--text2);font-weight:500;text-align:right}
+
+.rc-section{margin-bottom:14px;text-align:left}
+.rc-section-title{
+  font-size:12px;font-weight:600;color:var(--accent1);letter-spacing:2px;margin-bottom:6px;text-align:center;
+}
+.rc-section-text{font-size:13px;color:var(--text2);line-height:1.9}
+
+.rc-advice{
+  background:rgba(255,126,95,.06);border-radius:var(--radius-sm);
+  padding:14px 16px;margin-bottom:14px;text-align:left;
+}
+.rc-advice-title{font-size:11px;font-weight:600;color:var(--accent1);letter-spacing:2px;margin-bottom:4px}
+.rc-advice-text{font-size:12px;color:var(--text2);line-height:1.8}
+
+.rc-strength{
+  background:rgba(92,184,131,.08);border-radius:var(--radius-sm);
+  padding:12px 16px;margin-bottom:14px;text-align:left;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.rc-strength-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.rc-strength-title{font-size:11px;font-weight:600;color:var(--green);letter-spacing:2px;margin-bottom:2px}
+.rc-strength-text{font-size:12px;color:var(--text2);line-height:1.8}
+
+.rc-weakness{
+  background:rgba(168,141,200,.08);border-radius:var(--radius-sm);
+  padding:12px 16px;margin-bottom:14px;text-align:left;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.rc-weakness-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.rc-weakness-title{font-size:11px;font-weight:600;color:var(--purple);letter-spacing:2px;margin-bottom:2px}
+.rc-weakness-text{font-size:12px;color:var(--text2);line-height:1.8}
+
+.rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.rc-grid-item{
+  background:rgba(0,0,0,.03);border-radius:var(--radius-sm);
+  padding:12px;text-align:center;
+}
+.rc-grid-icon{font-size:22px;margin-bottom:4px}
+.rc-grid-label{font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:2px}
+.rc-grid-val{font-size:13px;font-weight:600;color:var(--text)}
+
+.rc-affirm{
+  background:linear-gradient(135deg,rgba(255,126,95,.08),rgba(254,180,123,.08));
+  border-radius:var(--radius-sm);padding:16px;
+  margin-bottom:14px;text-align:center;
+}
+.rc-affirm-icon{font-size:24px;margin-bottom:4px}
+.rc-affirm-text{font-size:14px;font-weight:600;color:var(--accent1);letter-spacing:2px;line-height:1.7}
+
+.rc-footer{text-align:center;font-size:10px;color:rgba(0,0,0,.2);letter-spacing:3px;padding-top:12px;border-top:1px solid rgba(0,0,0,.05)}
+
+.actions{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px}
+.btn-save{
+  padding:14px 44px;background:linear-gradient(135deg,var(--accent2),var(--accent1));
+  color:#fff;font-size:15px;font-weight:600;font-family:inherit;
+  border:none;border-radius:50px;cursor:pointer;letter-spacing:3px;
+  transition:all .3s;box-shadow:0 4px 20px rgba(255,126,95,.25);
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,126,95,.35)}
+.btn-secondary{
+  padding:10px 28px;background:transparent;color:var(--text2);
+  font-size:13px;font-family:inherit;border:1px solid rgba(0,0,0,.1);
+  border-radius:50px;cursor:pointer;letter-spacing:2px;transition:all .3s;
+}
+.btn-secondary:hover{color:var(--accent1);border-color:var(--accent2)}
+.btn-ghost{padding:8px 20px;background:transparent;color:rgba(0,0,0,.3);font-size:12px;font-family:inherit;border:none;cursor:pointer;letter-spacing:2px;transition:all .3s}
+.btn-ghost:hover{color:var(--text2)}
+
+/* ===== Toast ===== */
+.toast{
+  display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-radius:20px;padding:28px 36px;z-index:200;text-align:center;
+}
+.toast.show{display:block;animation:tp .35s ease}
+@keyframes tp{from{opacity:0;transform:translate(-50%,-50%) scale(.85)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.toast-icon{font-size:44px;margin-bottom:6px}
+.toast-text{font-size:14px;color:#fff;letter-spacing:1px}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+
+/* ===== Animations ===== */
+.slide-up{animation:su .4s ease forwards;opacity:0}
+@keyframes su{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.pop-in{animation:pi .45s cubic-bezier(.34,1.56,.64,1) forwards;opacity:0}
+@keyframes pi{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+/* ===== Responsive ===== */
+@media(max-width:480px){
+  .page{padding:14px}
+  .hero-title{font-size:28px}
+  .q-card{padding:24px 16px}
+  .q-text{font-size:17px}
+  .q-opt{padding:13px 14px;font-size:14px}
+  #res-card{padding:24px 14px}
+  .rc-grid{grid-template-columns:1fr 1fr;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"><div></div><div></div><div></div></div>
+
+<!-- ===== INTRO ===== -->
+<div id="intro" class="page active">
+  <div class="hero-icon">🦁</div>
+  <div class="badge">深 度 动 物 塑 性 格 测 试</div>
+  <div class="hero-title">你的内心住着谁？</div>
+  <div class="hero-sub">— 3 0 题 深 度 版 —</div>
+  <div class="hero-stats">
+    <div><div class="n">30</div><div class="l">精选题目</div></div>
+    <div><div class="n">8</div><div class="l">分钟完成</div></div>
+    <div><div class="n">12</div><div class="l">动物人格</div></div>
+  </div>
+  <div class="hero-desc">
+    30道精心设计的题目，从社交、职场、情感、生活四个维度<br>
+    深度剖析你的性格特质，发现你内心深处的动物人格
+  </div>
+  <div class="hero-animals" id="ha"></div>
+  <button class="btn-primary" onclick="startTest()">✦ 开始测试 ✦</button>
+</div>
+
+<!-- ===== QUESTION ===== -->
+<div id="question" class="page">
+  <div class="q-progress">
+    <div class="qp-row"><span>第 <strong id="ql">1</strong> 题</span><span><strong id="qc">1</strong> / 30</span></div>
+    <div class="qp-track"><div class="qp-fill" id="qf" style="width:3.3%"></div></div>
+    <div class="qp-milestones">
+      <span id="ms1">▎5题</span><span id="ms2">▎10题</span><span id="ms3">▎15题</span><span id="ms4">▎20题</span><span id="ms5">▎25题</span><span id="ms6">▎30题</span>
+    </div>
+  </div>
+  <div class="q-card">
+    <div class="q-num"><span class="circle" id="qn">1</span> 第 <span id="qn2">1</span> 题</div>
+    <div class="q-text" id="qt"></div>
+    <div class="q-opts" id="qo"></div>
+  </div>
+</div>
+
+<!-- ===== LOADING ===== -->
+<div id="loading" class="page">
+  <span class="loading-emoji" id="le">🦋</span>
+  <div class="loading-t1">深度分析中...</div>
+  <div class="loading-t2">正在从4个维度评估你的性格特质</div>
+  <div class="loading-bar"><div></div></div>
+</div>
+
+<!-- ===== RESULT ===== -->
+<div id="result" class="page">
+  <div class="res">
+    <div class="res-hero">
+      <div class="res-badge">你 的 动 物 人 格</div>
+      <span class="res-icon" id="ri"></span>
+      <div class="res-name" id="rn"></div>
+      <div class="res-en" id="re"></div>
+      <div class="res-tag" id="rt"></div>
+    </div>
+
+    <div class="card-wrap">
+      <div id="res-card">
+        <div style="text-align:center"><span class="rc-icon" id="ci"></span></div>
+        <div class="rc-name" id="cn"></div>
+        <div class="rc-en" id="ce"></div>
+        <div class="rc-tag" id="ct"></div>
+        <div class="rc-tags" id="ctags"></div>
+        <div class="rc-stats" id="cstats"></div>
+
+        <div class="rc-section">
+          <div class="rc-section-title">✦ 人格深度解读</div>
+          <div class="rc-section-text" id="cread"></div>
+        </div>
+
+        <div class="rc-advice">
+          <div class="rc-advice-title">✧ 给你的成长建议</div>
+          <div class="rc-advice-text" id="cadv"></div>
+        </div>
+
+        <div class="rc-strength">
+          <span class="rc-strength-icon">⭐</span>
+          <div><div class="rc-strength-title">核心优势</div><div class="rc-strength-text" id="cstr"></div></div>
+        </div>
+
+        <div class="rc-weakness">
+          <span class="rc-weakness-icon">🌱</span>
+          <div><div class="rc-weakness-title">成长空间</div><div class="rc-weakness-text" id="cweak"></div></div>
+        </div>
+
+        <div class="rc-grid" id="cgrid"></div>
+
+        <div class="rc-affirm">
+          <div class="rc-affirm-icon">💫</div>
+          <div class="rc-affirm-text" id="caffirm"></div>
+        </div>
+
+        <div class="rc-footer">✦ 动 物 塑 · 深 度 性 格 鉴 定 ✦</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-save" onclick="saveCard()">⬇ 保存结果为图片</button>
+        <button class="btn-secondary" onclick="copyLink()">✧ 分享给朋友来测</button>
+        <button class="btn-ghost" onclick="retake()">⟳ 重新测试</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="t-save"><div class="toast-icon">✅</div><div class="toast-text">结果卡片已保存</div></div>
+<div class="toast" id="t-share"><div class="toast-icon">🔗</div><div class="toast-text">链接已复制，快去分享吧！</div></div>
+
+<script>
+// ===== 12 Animals =====
+var A = {
+  lion:{
+    n:'狮子',e:'LION',i:'🦁',t:'"天生的领袖，自带王者气场"',c:'#e8865e',
+    tg:['领导力','果断','自信','魄力','担当'],
+    st:{领导力:92,勇气:88,果断:85,魄力:80,感染力:78,亲和:55},
+    rd:'你天生就带着一种"我来搞定"的气场。遇到问题时你不会退缩，而是第一个站出来拍板。你有极强的目标感和决策力，别人还在犹豫时你已经行动了。你不喜欢被控制，也不喜欢平庸，你的人生信条是——要么不做，要做就做最好。你像是团队里的引擎，有你在，大家就有方向。但有时候，你的强势会让身边的人感到压力，真正的领袖不是走在最前面，而是让每个人都觉得自己很重要。',
+    ad:'学会放慢脚步，听听别人的声音。真正的力量不是时刻冲锋，而是能让身边每个人都发挥出最好的自己。有时候，退一步反而能让团队走得更远。',
+    sg:'决策力极强，危机时刻是定海神针；有天然的领导魅力，能凝聚团队；不畏惧挑战，敢于承担责任',
+    wk:'偶尔过于强势，忽略他人感受；容易独断专行，不太擅长妥协；对自己和他人要求都太高',
+    gr:[['🧩','最佳搭档','海豚 — 你的热情需要海豚的温暖来平衡'],['💡','成长课题','学会倾听 — 权威不是一切'],['💼','适配领域','管理者 · 创业者 · 指挥家 · 法官']],
+    af:'你的存在本身就是一种力量。记住，真正的领导者让每个人都闪闪发光，而不只是自己发光。'
+  },
+  dolphin:{
+    n:'海豚',e:'DOLPHIN',i:'🐬',t:'"阳光温暖，自带快乐磁场"',c:'#5b9bd5',
+    tg:['社交','乐观','合作','温暖','感染力'],
+    st:{社交力:92,乐观:90,合作:88,感染力:82,共情:78,独处:48},
+    rd:'你是朋友圈里的"小太阳"，有你在的地方就有笑声。你对情绪的感知力特别强，总是能第一时间察觉到谁不开心，然后用自己的方式去温暖对方。你擅长合作，不喜欢冲突，在团队里你是最好的润滑剂。你相信人性本善，总是用最大的善意去理解别人。你的乐观不是盲目的，而是你选择用积极的角度看世界。但别忘了，快乐的人也需要被快乐对待，你也有权利偶尔不笑。',
+    ad:'允许自己不开心。真实的情绪比假装的快乐更有力量。学会在温暖别人之前，先温暖自己。',
+    sg:'极强的社交和共情能力，是团队里的润滑剂；乐观积极，能感染身边的人；善于合作，懂得共赢',
+    wk:'过于在意他人感受，容易委屈自己；害怕冲突，有时回避问题；独处能力较弱，需要外部能量',
+    gr:[['🧩','最佳搭档','狮子 — 海豚的温暖能让狮子更柔软'],['💡','成长课题','自省 — 关注自己的内心需求'],['💼','适配领域','公关 · 教师 · 心理咨询 · 主持']],
+    af:'你就是别人的阳光，但也别忘了晒晒自己。温暖别人是你的天赋，爱自己是你需要学习的功课。'
+  },
+  wolf:{
+    n:'狼',e:'WOLF',i:'🐺',t:'"团队至上，忠诚而有力量"',c:'#6b6b6b',
+    tg:['忠诚','团队','坚韧','策略','责任'],
+    st:{团队:90,忠诚:88,坚韧:85,策略:78,执行力:75,随性:45},
+    rd:'你相信"一个人走得快，一群人走得远"。你对认定的团队和伙伴有着极强的忠诚度，一旦你认定了，就会全力以赴。你善于制定策略，懂得如何在复杂局面中找到突破口。你的坚韧不拔让你在面对困难时从不轻言放弃。你可能是团队里不声不响但却最可靠的那个人。但也要注意——过度的忠诚有时会让你失去独立思考的能力，别让"合群"成为你的枷锁。',
+    ad:'保持忠诚的同时，别忘了独立思考。真正的团队精神不是盲目跟随，而是带着自己的判断和大家一起前进。',
+    sg:'团队协作能力强，是值得信赖的伙伴；坚韧不拔，面对困难不退缩；有策略思维，善于规划',
+    wk:'过度忠诚容易失去自我判断；有时过于严肃，缺少灵活性；习惯压抑自己的情绪',
+    gr:[['🧩','最佳搭档','鹰 — 狼的务实需要鹰的远见来补充'],['💡','成长课题','独立 — 保持自己的判断力'],['💼','适配领域','项目经理 · 军官 · 团队负责人 · 教练']],
+    af:'你是团队最坚实的后盾。但也别忘了，偶尔做一匹独行的狼，看看不同的风景。'
+  },
+  fox:{
+    n:'狐狸',e:'FOX',i:'🦊',t:'"机智灵活，永远快人一步"',c:'#d48a4a',
+    tg:['智慧','灵活','敏锐','应变','创新'],
+    st:{智慧:88,灵活:90,敏锐:85,应变:82,创新:78,耐心:50},
+    rd:'你的大脑就像一台高速运转的处理器，别人还在想第一步，你已经看到了第三步。你有一种"在任何情况下都能找到出路"的能力，再复杂的问题到了你手里都能被拆解得清清楚楚。你善于观察，总能捕捉到别人忽略的细节。你不喜欢死板的方式，总能找到更聪明的路径。但也要注意——聪明反被聪明误，有时候最直接的路径反而是最好的。',
+    ad:'你的灵活应变是超能力，但也要学会"笨功夫"。不是所有事情都需要技巧，有些事踏踏实实做反而更快。',
+    sg:'思维敏捷，善于解决复杂问题；洞察力极强，能看到问题的本质；适应能力强，任何环境都能生存',
+    wk:'有时过于取巧，缺少耐心；容易被新鲜事物分散注意力；不太擅长处理重复性工作',
+    gr:[['🧩','最佳搭档','猫头鹰 — 狐狸的灵活配合猫头鹰的深度'],['💡','成长课题','专注 — 深耕一个领域的力量'],['💼','适配领域','咨询 · 策划 · 谈判 · 创业者']],
+    af:'你的聪明让你走得很快，但专注能让你走得很远。用你的智慧去深耕，而不是到处撒网。'
+  },
+  eagle:{
+    n:'鹰',e:'EAGLE',i:'🦅',t:'"目光长远，俯瞰全局"',c:'#4a6fa5',
+    tg:['远见','独立','专注','格局','战略'],
+    st:{远见:92,独立:88,专注:85,格局:82,战略:78,社交:52},
+    rd:'你看问题的视角总是比别人高一层。当别人在争眼前的得失时，你已经在规划三年后的布局了。你享受独处的时光，因为独处时你的思想才能真正翱翔。你对自己的目标有近乎偏执的专注力，一旦锁定了方向，就很难被外界干扰。你是一个天生的战略家，总能从全局出发做出最优的判断。但也别忘了——飞得太高，有时候会错过脚下的风景。',
+    ad:'偶尔低飞，看看身边的美好。格局大是好事，但人生的意义也藏在那些微小而具体的幸福里。',
+    sg:'有极强的远见和战略思维，能把握大方向；独立性强，不依赖他人；对目标专注，执行力强',
+    wk:'有时过于高冷，缺少人情味；不太擅长团队协作中的细致沟通；容易忽视当下的小确幸',
+    gr:[['🧩','最佳搭档','狼 — 鹰的远见需要狼的团队执行力'],['💡','成长课题','共情 — 连接他人的温度'],['💼','适配领域','战略家 · 投资人 · 导演 · 分析师']],
+    af:'你的格局让你看见远方，但别忘了，最美风景往往在路上。保持高度，也保持温度。'
+  },
+  bear:{
+    n:'熊',e:'BEAR',i:'🐻',t:'"沉稳可靠，厚积薄发"',c:'#8b7355',
+    tg:['沉稳','力量','可靠','耐心','踏实'],
+    st:{沉稳:92,力量:85,可靠:90,耐心:88,务实:82,灵活:44},
+    rd:'你是这个浮躁世界里最稀缺的那种人——不急不躁，步步为营。你相信厚积薄发，从不羡慕别人的捷径，因为你知道真正的价值需要时间沉淀。你的存在本身就是一种安全感，朋友遇到困难第一个想到的就是找你商量。你的力量不是用来炫耀的，而是用来保护重要的人和事。但有时你也需要提醒自己——世界变化很快，偶尔走出舒适区会让你看到更大的天地。',
+    ad:'你的沉稳让人安心，但也要保持开放的心态。偶尔尝试一些"不靠谱"的事，人生会更有趣。',
+    sg:'极度可靠，是身边人最信任的存在；沉稳冷静，能在混乱中保持清醒；有极强的耐心和毅力',
+    wk:'有时过于保守，抗拒变化；行动略显迟缓，容易错过时机；不太善于表达情感',
+    gr:[['🧩','最佳搭档','狐狸 — 熊的沉稳需要狐狸的灵活来调剂'],['💡','成长课题','灵活 — 保持开放的姿态'],['💼','适配领域','工程师 · 建筑师 · 医生 · 军人']],
+    af:'你是这个世界上最让人安心的存在。你的力量不在于速度，而在于每一步都踩得很稳。'
+  },
+  cat:{
+    n:'猫',e:'CAT',i:'🐱',t:'"优雅独立，活在自己的节奏里"',c:'#a88dc8',
+    tg:['独立','优雅','审美','从容','边界感'],
+    st:{独立:92,审美:88,敏锐:82,从容:80,创造力:72,社交:50},
+    rd:'你活在自己的节奏里，不被外界带着走。你有自己独特的审美体系和生活方式，对不喜欢的人和事，你有礼貌但坚定地保持距离。你享受独处的时光，一个人的时候反而最自在。你看似高冷，其实只是懒得应付无效社交——你宁愿把时间花在自己真正热爱的事情上。你的边界感很强，懂得保护自己的能量。但也别把太多人挡在门外，有些人值得你为他打开一扇窗。',
+    ad:'你的独立是你的魅力，但也要偶尔走出来。世界上有很多有趣的人，他们都想认识那个有趣的你。',
+    sg:'独立性强，不依赖他人评价；审美出众，有独特的生活品味；善于保护自己的能量和边界',
+    wk:'社交圈较小，容易给人距离感；有时过于固执，不太接受他人建议；情感表达较为克制',
+    gr:[['🧩','最佳搭档','海豚 — 猫的独立需要海豚的温暖来融化'],['💡','成长课题','开放 — 让对的人走进你的世界'],['💼','适配领域','设计师 · 作家 · 艺术家 · 自由职业']],
+    af:'你的独立让你与众不同。但也别忘了，偶尔走出自己的小世界，外面有很多美好的相遇等着你。'
+  },
+  owl:{
+    n:'猫头鹰',e:'OWL',i:'🦉',t:'"深夜思考者，智者的眼睛"',c:'#4a4a6a',
+    tg:['智慧','洞察','理性','深思','专注'],
+    st:{智慧:92,洞察:90,理性:88,深思:85,专注:78,行动:46},
+    rd:'你的头脑是一台精密的分析仪器。你习惯在深夜思考——白天那些嘈杂的问题到了晚上突然就有了答案。你有一种"一语道破天机"的能力，别人看半天想不明白的事，你一句话就能点出本质。你不轻易开口，但一开口就是重量级的观点。你不喜欢表面化的社交，更喜欢有深度的对话。但也要注意——世界上很多问题没有完美的答案，有时候行动比深思熟虑更重要。',
+    ad:'你的深思熟虑是天赋，但不完美才是人生常态。学会在信息不充分的时候也敢于做决定。',
+    sg:'洞察力极强，能看透问题的本质；理性客观，不容易被情绪左右；善于深度思考和分析',
+    wk:'有时过度分析导致行动迟缓；社交中容易给人距离感；对不完美的接受度较低',
+    gr:[['🧩','最佳搭档','狐狸 — 猫头鹰的深度需要狐狸的灵活来激活'],['💡','成长课题','行动力 — 在思考中前进'],['💼','适配领域','学者 · 研究员 · 分析师 · 编辑']],
+    af:'你的智慧是世间少有的宝藏。但记住，完美不是答案，行动才是。在思考中前进，在前进中完善。'
+  },
+  rabbit:{
+    n:'兔子',e:'RABBIT',i:'🐰',t:'"温柔敏感，用善意拥抱世界"',c:'#e8a0a0',
+    tg:['温柔','共情','谨慎','友善','细腻'],
+    st:{温柔:92,共情:88,谨慎:82,友善:85,细腻:78,强势:40},
+    rd:'你的心像羽毛一样柔软而敏感。你能第一时间察觉到身边人的情绪变化，哪怕只是一个微表情。你总是小心翼翼地不去伤害任何人，说话之前会在心里过三遍。你的友善不是软弱，而是你选择用温柔的方式和这个世界相处。你的细腻让你成为最好的倾听者——朋友都愿意向你倾诉秘密。但也别忘了，温柔的人也需要被温柔对待，你的善良需要有锋芒。',
+    ad:'你的温柔是世界上最珍贵的品质。但请记住，善良不等于没有底线。学会说"不"，是对自己的善良。',
+    sg:'共情能力极强，是最好的倾听者；温柔细腻，让人感到舒适和安全；谨慎周全，很少犯错',
+    wk:'过于敏感，容易受到伤害；不善于拒绝别人，容易委屈自己；面对冲突容易退缩',
+    gr:[['🧩','最佳搭档','熊 — 兔子的温柔需要熊的坚实来守护'],['💡','成长课题','自信 — 温柔也要有力量'],['💼','适配领域','护士 · 幼师 · 社工 · 翻译']],
+    af:'你的温柔是这个世界的光。但也请记得，保护好自己的柔软。善良需要有边界，温柔需要有力量。'
+  },
+  butterfly:{
+    n:'蝴蝶',e:'BUTTERFLY',i:'🦋',t:'"不断蜕变，每一次都更美"',c:'#d48ab8',
+    tg:['蜕变','自由','灵动','热情','创造力'],
+    st:{创造力:90,自由:88,灵动:85,热情:82,适应力:78,稳定:48},
+    rd:'你的人生就像蝴蝶的蜕变——每经历一次困难，你就变得更加绚烂。你不喜欢一成不变，总是在寻找新的可能。你对世界充满好奇，对新鲜事物永远保持开放的心态。你的灵动和热情让你走到哪里都能带来生机。你有很强的适应力，几乎在任何环境中都能找到属于自己的方式发光。但也别忘了——不是所有变化都是成长，有些坚持比改变更需要勇气。',
+    ad:'你的蜕变能力令人羡慕，但也要学会沉淀。不是所有东西都需要改变，有些美好的事物值得你一直守护。',
+    sg:'创造力丰富，总能带来新点子；适应力极强，能在变化中找到机会；充满热情，感染身边的人',
+    wk:'稳定性不足，容易三分钟热度；有时过于追求变化，忽略了持续积累的价值',
+    gr:[['🧩','最佳搭档','猫 — 蝴蝶的自由需要猫的定力来平衡'],['💡','成长课题','坚持 — 在变化中找到恒定'],['💼','适配领域','设计师 · 花艺 · 自媒体 · 演员']],
+    af:'每一次蜕变都是一次重生。你的美在于不断成长，但也要记住——有些最美的蝴蝶，也懂得在花上停留。'
+  },
+  otter:{
+    n:'水獭',e:'OTTER',i:'🦦',t:'"快乐生活家，把日子过成诗"',c:'#7cb083',
+    tg:['幽默','活力','好奇','创意','乐天'],
+    st:{幽默:90,活力:88,好奇:85,创意:82,乐天:78,稳重:50},
+    rd:'你是那种能把平凡日子过出花来的人。别人看到的是柴米油盐，你看到的是生活中的小确幸。你有天生的幽默感，总能在最无聊的场合逗笑所有人。你的好奇心让你永远保持年轻——你愿意尝试一切新鲜的事物。你是朋友圈里的"快乐制造机"，有你在就不会冷场。但也要记得——快乐制造机也需要充电，你不需要时刻都那么有趣。',
+    ad:'你的快乐能量感染着每个人，但也要留点时间给自己充电。真实的你不需要时刻都在表演。',
+    sg:'幽默感十足，是朋友圈的开心果；充满活力和好奇心，永远年轻；创意无限，总有好点子',
+    wk:'稳定性较差，容易三分钟热度；有时过于玩乐，缺少严肃的一面；不太擅长处理深度情感',
+    gr:[['🧩','最佳搭档','兔子 — 水獭的活力需要兔子的温柔来柔软'],['💡','成长课题','深度 — 培养专注和沉静'],['💼','适配领域','活动策划 · 导游 · 博主 · 销售']],
+    af:'你的快乐是一种天赋。但真正的快乐不是一直笑，而是允许自己有时候不笑。做真实的自己就好。'
+  },
+  elephant:{
+    n:'大象',e:'ELEPHANT',i:'🐘',t:'"厚重温和，心中有山河"',c:'#8a9ba8',
+    tg:['包容','稳重','智慧','守护','豁达'],
+    st:{包容:92,稳重:88,智慧:85,守护:90,豁达:82,速度:38},
+    rd:'你的内心像大象一样宽广而厚重。你能包容很多人无法包容的事，你记得每一个对你好的人，你的记性很好——好到连很久以前别人无心的一句温暖的话你都还记得。你的稳重让身边的人感到踏实，你的智慧让你看透很多事情却选择不戳破。你是朋友心中的定海神针，有你在大家就安心。但也别忘了——你的包容需要边界，善良不是无限度的退让。',
+    ad:'你的包容是美德，但也要保护好自己的边界。善良不是无限度的退让，菩萨心肠也需要雷霆手段。',
+    sg:'包容力极强，能容纳不同的声音；稳重可靠，是大家最信任的人；智慧通达，看透世事',
+    wk:'做事节奏较慢；有时过于包容，容易被他人越界；不太善于表达自己的情绪和需求',
+    gr:[['🧩','最佳搭档','蝴蝶 — 大象的厚重需要蝴蝶的灵动来轻盈'],['💡','成长课题','表达 — 说出你的需求和感受'],['💼','适配领域','管理者 · 顾问 · 治疗师 · 公益']],
+    af:'你的包容和厚重是这个世界最稀缺的品质。但也请记住，你的心有山河，也需要有自己的边界。'
+  }
+};
+var AL = ['lion','dolphin','wolf','fox','eagle','bear','cat','owl','rabbit','butterfly','otter','elephant'];
+
+// ===== 30 Questions =====
+var Q = [
+  {t:'周末休息时，你更喜欢？',o:[{t:'约朋友一起出去玩',k:'dolphin'},{t:'一个人安静地看书/看电影',k:'cat'},{t:'做点有挑战性的事情',k:'eagle'}]},
+  {t:'朋友遇到困难找你倾诉时，你通常会？',o:[{t:'立刻给出解决方案',k:'lion'},{t:'安静地倾听和陪伴',k:'elephant'},{t:'帮他分析问题的本质',k:'owl'}]},
+  {t:'在团队合作中，你更多扮演什么角色？',o:[{t:'带节奏的领导者',k:'lion'},{t:'默默执行的中坚力量',k:'bear'},{t:'活跃气氛的开心果',k:'otter'}]},
+  {t:'面对一个新鲜事物时，你的第一反应是？',o:[{t:'充满好奇，马上去试试',k:'otter'},{t:'先观察研究再决定',k:'fox'},{t:'评估它是否有价值',k:'eagle'}]},
+  {t:'以下几种说法，你最认同哪一个？',o:[{t:'一个人走得快，一群人走得远',k:'wolf'},{t:'做真实的自己最重要',k:'butterfly'},{t:'稳扎稳打才能走得远',k:'elephant'}]},
+  {t:'朋友们通常用什么词来形容你？',o:[{t:'聪明',k:'fox'},{t:'温柔',k:'rabbit'},{t:'可靠',k:'bear'}]},
+  {t:'面对压力时，你更倾向于？',o:[{t:'一个人待着慢慢消化',k:'owl'},{t:'找朋友倾诉释放',k:'dolphin'},{t:'用忙碌和行动来应对',k:'eagle'}]},
+  {t:'你在朋友交往中最看重的品质是？',o:[{t:'真诚和忠诚',k:'wolf'},{t:'有趣和幽默感',k:'otter'},{t:'独特和有自己的品味',k:'butterfly'}]},
+  {t:'你理想中的生活状态更接近哪一种？',o:[{t:'自由自在，不被任何人束缚',k:'butterfly'},{t:'安安稳稳，岁月静好',k:'cat'},{t:'充满挑战，不断突破自己',k:'eagle'}]},
+  {t:'你觉得内心深处，自己更像？',o:[{t:'守护者——想保护重要的人和事',k:'elephant'},{t:'探索者——永远对新事物充满好奇',k:'fox'},{t:'治愈者——想温暖和帮助身边的人',k:'rabbit'}]},
+  {t:'工作中你觉得自己最强的能力是什么？',o:[{t:'制定策略和方向',k:'eagle'},{t:'执行和落地',k:'bear'},{t:'沟通和协作',k:'dolphin'}]},
+  {t:'你更喜欢哪种类型的社交？',o:[{t:'三五好友的深度聊天',k:'owl'},{t:'热闹的多人聚会',k:'dolphin'},{t:'一对一的心灵对话',k:'rabbit'}]},
+  {t:'面对一个重大决定时，你通常？',o:[{t:'理性分析各种可能性再决定',k:'owl'},{t:'听从内心的直觉',k:'butterfly'},{t:'咨询信任的人的意见',k:'wolf'}]},
+  {t:'别人不了解你的时候，通常会以为你？',o:[{t:'很高冷',k:'cat'},{t:'很严肃',k:'bear'},{t:'很好说话',k:'rabbit'}]},
+  {t:'你觉得自己性格里最明显的特点是？',o:[{t:'心思细腻，想得很多',k:'owl'},{t:'行动力强，想到就做',k:'lion'},{t:'随遇而安，不太计较',k:'otter'}]},
+  {t:'你更喜欢别人用什么方式对你？',o:[{t:'直接的表达，不用猜',k:'lion'},{t:'温柔的关怀，默默陪伴',k:'rabbit'},{t:'有趣的互动，轻松愉快',k:'otter'}]},
+  {t:'旅行时你更偏好哪种方式？',o:[{t:'做详细的攻略规划',k:'fox'},{t:'随心所欲，走到哪算哪',k:'butterfly'},{t:'找个安静的地方住下来',k:'cat'}]},
+  {t:'对待金钱的态度，你更接近？',o:[{t:'该花就花，开心最重要',k:'dolphin'},{t:'有规划地储蓄和投资',k:'fox'},{t:'够用就行，不追求物质',k:'elephant'}]},
+  {t:'你更容易被哪种人吸引？',o:[{t:'自信有魄力的人',k:'lion'},{t:'温柔善良的人',k:'rabbit'},{t:'幽默有趣的人',k:'otter'}]},
+  {t:'当你的观点和大多数人不一样时，你会？',o:[{t:'坚持自己的观点',k:'cat'},{t:'试图说服别人',k:'lion'},{t:'保留意见，不再争论',k:'elephant'}]},
+  {t:'你更倾向于哪种学习方式？',o:[{t:'通过看书和深度研究',k:'owl'},{t:'通过实践和动手操作',k:'bear'},{t:'通过和别人交流讨论',k:'dolphin'}]},
+  {t:'在感情中你更看重？',o:[{t:'信任和安全感',k:'wolf'},{t:'激情和新鲜感',k:'butterfly'},{t:'理解和默契',k:'cat'}]},
+  {t:'你的房间/办公桌通常是？',o:[{t:'整洁有序，每样东西都有固定位置',k:'bear'},{t:'有自己的一套"乱中有序"',k:'fox'},{t:'随心情变化，不定期整理',k:'otter'}]},
+  {t:'你更认同哪种成功观？',o:[{t:'成功是做自己喜欢的事',k:'butterfly'},{t:'成功是得到社会的认可',k:'lion'},{t:'成功是内心平静和满足',k:'elephant'}]},
+  {t:'你觉得你的情绪特点是？',o:[{t:'情绪来得快去得也快',k:'dolphin'},{t:'情绪稳定，少有波动',k:'bear'},{t:'内心敏感但不容易外露',k:'rabbit'}]},
+  {t:'如果朋友做了让你不开心的事，你会？',o:[{t:'直接说出来',k:'lion'},{t:'默默疏远',k:'cat'},{t:'暗示对方希望TA能懂',k:'rabbit'}]},
+  {t:'你更喜欢哪种类型的电影/书籍？',o:[{t:'悬疑推理，烧脑的类型',k:'owl'},{t:'温馨治愈，讲人情的故事',k:'rabbit'},{t:'励志热血，充满力量的故事',k:'lion'}]},
+  {t:'你觉得自己在做决定时更多靠？',o:[{t:'理性分析',k:'owl'},{t:'直觉感受',k:'butterfly'},{t:'过往经验',k:'elephant'}]},
+  {t:'如果用一个词形容你的人生观，会是？',o:[{t:'探索——世界很大，我想去看看',k:'fox'},{t:'守护——保护重要的人和事',k:'wolf'},{t:'享受——活在当下，开心就好',k:'otter'}]},
+  {t:'你内心深处最渴望被理解的方面是？',o:[{t:'我看起来强大，但也会脆弱',k:'lion'},{t:'我看起来很开朗，但也会孤独',k:'dolphin'},{t:'我看起来很独立，但也需要依靠',k:'cat'}]}
+];
+
+var CN = ['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二一','二二','二三','二四','二五','二六','二七','二八','二九','三十'];
+
+// ===== State =====
+var ci = 0, as = {}, rt = null;
+
+// ===== Init =====
+(function(){
+  var h = document.getElementById('ha');
+  for(var i=0;i<AL.length;i++){
+    var s = document.createElement('span');
+    s.textContent = A[AL[i]].i; h.appendChild(s);
+  }
+})();
+
+// ===== Nav =====
+function sp(id){
+  var ps = document.querySelectorAll('.page');
+  for(var i=0;i<ps.length;i++) ps[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0});
+}
+
+// ===== Start =====
+function startTest(){
+  ci=0; as={}; rt=null; sp('question'); rq();
+}
+
+// ===== Render Question =====
+function rq(){
+  var q = Q[ci];
+  document.getElementById('qn').textContent = ci+1;
+  document.getElementById('qn2').textContent = ci+1;
+  document.getElementById('ql').textContent = ci+1;
+  document.getElementById('qc').textContent = ci+1;
+  document.getElementById('qf').style.width = ((ci+1)/30*100)+'%';
+
+  // milestones
+  var ms = [5,10,15,20,25,30];
+  for(var i=0;i<ms.length;i++){
+    var el = document.getElementById('ms'+(i+1));
+    if(ci+1 >= ms[i]) el.className = 'done'; else el.className = '';
+  }
+
+  document.getElementById('qt').textContent = q.t;
+  var c = document.getElementById('qo'); c.innerHTML = '';
+  var em = ['🅰','🅱','🅲'];
+  for(var i=0;i<q.o.length;i++){
+    var b = document.createElement('button');
+    b.className = 'q-opt slide-up';
+    b.style.animationDelay = (i*0.08)+'s';
+    b.innerHTML = '<span class="ok">'+em[i]+'</span><span class="ot">'+q.o[i].t+'</span>';
+    (function(idx){b.onclick=function(){sel(idx);};})(i);
+    c.appendChild(b);
+  }
+}
+
+// ===== Select =====
+function sel(idx){
+  var k = Q[ci].o[idx].k;
+  if(!as[k]) as[k]=0; as[k]++;
+
+  // Ripple effect
+  var btns = document.querySelectorAll('.q-opt');
+  btns[idx].style.borderColor = '#ff7e5f';
+  btns[idx].style.background = 'rgba(255,126,95,.08)';
+  var r = document.createElement('span');
+  r.className = 'ripple';
+  var rect = btns[idx].getBoundingClientRect();
+  r.style.left = (event && event.clientX ? event.clientX - rect.left : rect.width/2)+'px';
+  r.style.top = (event && event.clientY ? event.clientY - rect.top : rect.height/2)+'px';
+  r.style.width = r.style.height = '10px';
+  btns[idx].appendChild(r);
+  setTimeout(function(){r.remove();},500);
+
+  if(ci < Q.length-1){
+    setTimeout(function(){ci++; rq();},200);
+  } else {
+    sp('loading');
+    var le = document.getElementById('le');
+    le.textContent = ['🦋','🦁','🐺','🦊','🐬','🦅'][Math.floor(Math.random()*6)];
+    setTimeout(calc,2200);
+  }
+}
+
+// ===== Calculate =====
+function calc(){
+  var mx=0;
+  for(var i=0;i<AL.length;i++){
+    var t=AL[i],c=as[t]||0;
+    if(c>mx){mx=c;rt=t;}
+  }
+  sp('result'); render();
+}
+
+// ===== Render =====
+function render(){
+  var p=A[rt];
+  var els = ['ri','rn','re','rt','ci','cn','ce','ct'];
+  var vals = [p.i,'【 '+p.n+' 】',p.e,p.t,p.i,'【 '+p.n+' 】',p.e,p.t];
+  for(var i=0;i<els.length;i++) document.getElementById(els[i]).textContent = vals[i];
+
+  // Tags
+  var tc = document.getElementById('ctags'); tc.innerHTML = '';
+  for(var i=0;i<p.tg.length;i++){
+    var tag = document.createElement('span'); tag.textContent = p.tg[i]; tc.appendChild(tag);
+  }
+
+  // Stats
+  var gr = 'linear-gradient(90deg, '+p.c+'88, '+p.c+')';
+  var sc = document.getElementById('cstats'); sc.innerHTML = '';
+  var sk = Object.keys(p.st);
+  for(var i=0;i<sk.length;i++){
+    var l=sk[i],v=p.st[l];
+    var r = document.createElement('div'); r.className = 'rs-row';
+    r.innerHTML = '<span class="rs-l">'+l+'</span><div class="rs-b"><div class="rs-f" style="width:0%;background:'+gr+'"></div></div><span class="rs-v">'+v+'%</span>';
+    sc.appendChild(r);
+    (function(el,val){setTimeout(function(){el.style.width=val+'%';},300+i*100);})(r.querySelector('.rs-f'),v);
+  }
+
+  // Reading
+  document.getElementById('cread').textContent = p.rd;
+
+  // Advice
+  document.getElementById('cadv').textContent = p.ad;
+
+  // Strength
+  document.getElementById('cstr').textContent = p.sg;
+
+  // Weakness
+  document.getElementById('cweak').textContent = p.wk;
+
+  // Grid
+  var gg = document.getElementById('cgrid'); gg.innerHTML = '';
+  for(var i=0;i<p.gr.length;i++){
+    var d = document.createElement('div'); d.className = 'rc-grid-item';
+    d.innerHTML = '<div class="rc-grid-icon">'+p.gr[i][0]+'</div><div class="rc-grid-label">'+p.gr[i][1]+'</div><div class="rc-grid-val">'+p.gr[i][2]+'</div>';
+    gg.appendChild(d);
+  }
+
+  // Affirmation
+  document.getElementById('caffirm').textContent = p.af;
+}
+
+// ===== Save =====
+function saveCard(){
+  var card = document.getElementById('res-card');
+  html2canvas(card,{
+    backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,
+    width:card.scrollWidth,height:card.scrollHeight
+  }).then(function(canvas){
+    var l = document.createElement('a');
+    l.download = rt+'_animal_personality_deep.png';
+    l.href = canvas.toDataURL('image/png'); l.click();
+    var t = document.getElementById('t-save');
+    t.style.display = 'block'; t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');t.style.display='none';},2000);
+  });
+}
+
+// ===== Share =====
+function copyLink(){
+  var i = document.createElement('textarea');
+  i.value = window.location.href;
+  document.body.appendChild(i); i.select(); document.execCommand('copy');
+  document.body.removeChild(i);
+  var t = document.getElementById('t-share');
+  t.style.display = 'block'; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');t.style.display='none';},2000);
+}
+
+// ===== Retake =====
+function retake(){
+  ci=0; as={}; rt=null; sp('intro');
+}
+</script>
+</body>
+</html>
